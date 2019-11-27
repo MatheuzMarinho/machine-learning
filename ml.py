@@ -203,7 +203,7 @@ if not os.path.exists(path_final):
     os.makedirs(path_final)
 
 #define o nome do arquivo csv a ser lido. Define o nome da técnica que sera utilizada
-arquivo = 'nfr_dataset'
+filee = 'nfr_dataset'
 name_clf = 'SVM'
 
 #Extrai a data e hora atual para colocar no arquivo
@@ -216,7 +216,8 @@ name_csv = path_final+'/'+name_csv
 
 
 #Leitura da Planilha
-df = pd.read_csv(path+'/'+arquivo+'.csv',encoding ='utf-8')
+path_to_file = path+'/datasets/'+filee
+df = pd.read_csv(path_to_file+'.csv',encoding ='utf-8')
 
 #overview(df)
 
@@ -233,7 +234,7 @@ X, y = df.requirement_text, df.iloc[:,-1]
 
 #Extrai as LABELS do dataset
 from sklearn.utils.multiclass import unique_labels
-#labels = unique_labels(y)
+labels = unique_labels(y)
 #print("LABELS: ",labels)
 
 #Definição do Classificador
@@ -249,6 +250,6 @@ classifier = svm.SVC(gamma='scale')
 #stratifiedShuffleSplitSplits(X,y,classifier,10)
 #trainTeste(X,y,classifier,2,name_clf,name_csv)
 
-#name_csv = path_final + '/SVM_D26-11-2019T23_45_41'
+#name_csv = path_final + '/SVM_D26-11-2019T23_56_19'
 #evaluate_csv(name_csv)
 
