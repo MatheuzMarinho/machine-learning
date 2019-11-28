@@ -3,6 +3,13 @@ import numpy as np
 from statistics import mean,stdev 
 import pandas as pd
 
+
+def get_metrics_multiple_csv(precisao,recall,f1):
+    precisao_geral_rodadas = np.mean(precisao, axis=1)
+    recall_geral_rodadas = np.mean(recall, axis=1)
+    f1_geral_rodadas = np.mean(f1, axis=1)
+    return precisao_geral_rodadas,recall_geral_rodadas,f1_geral_rodadas
+
 def showMetrics(precisao, recall, f1, accuracia,labels):
     precisao_classe = []
     for i in range(len(precisao[0])):
@@ -87,3 +94,41 @@ def evaluate_csv(name):
     l = df.labels.apply(eval).tolist()
 
     showMetrics(p[0],r[0],f[0],a[0],l[0])
+
+def show_metrics_multiple_csv(list_precision,list_recall,list_f1,list_acuracia, list_target):
+    fig, axs = plt.subplots(2, 2)
+    fig.subplots_adjust(hspace=0.75)
+    fig.suptitle('Análise Geral')
+    axs[0, 0].boxplot(list_acuracia)
+    axs[0, 0].set_title('Acurácia')
+    axs[0, 0].set_xticklabels(list_target,rotation=35, fontsize=8)
+    axs[0, 1].boxplot(list_precision)
+    axs[0, 1].set_title('Precisão')
+    axs[0, 1].set_xticklabels(list_target,rotation=35, fontsize=8)
+    axs[1, 0].boxplot(list_recall)
+    axs[1, 0].set_title('Recall')
+    axs[1, 0].set_xticklabels(list_target,rotation=35, fontsize=8)
+    axs[1, 1].boxplot(list_f1)
+    axs[1, 1].set_title('F1')
+    axs[1, 1].set_xticklabels(list_target,rotation=35, fontsize=8)
+    plt.show()
+def evaluate_multiple_csv(csv):
+    from ast import literal_eval
+    list_precision = []
+    list_recall = []
+    list_f1 = []
+    list_acuracia = []
+    list_target = []
+    df = pd.read_csv(csv+'.csv',encoding ='utf-8')
+    for index, row in df.iterrows():
+        p = literal_eval(row.precisao)
+        r= literal_eval(row.recall)
+        f= literal_eval(row.f1)
+        a = literal_eval(row.acuracia)
+        lp,lr,lf= get_metrics_multiple_csv(p,r,f)
+        list_precision.append(lp)
+        list_recall.append(lr)
+        list_f1.append(lf)
+        list_acuracia.append(a)       
+        list_target.append(row.target_csv)
+    show_metrics_multiple_csv(list_precision,list_recall,list_f1,list_acuracia,list_target)

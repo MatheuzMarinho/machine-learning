@@ -19,7 +19,18 @@ def overview(df):
     plt.show()
 
 
-
+def createDataFrameMetrics(precisao, recall, f1, acuracia, name_clf,labels, target):
+    df = pd.DataFrame(
+        {'classificador': name_clf,
+        'precisao': [precisao],
+        'recall': [recall],
+        'f1': [f1],
+        'acuracia': [acuracia],
+        'labels':[labels.tolist()],
+        'target_csv':target
+        }
+    )
+    return df
     
 def saveMetrics(precisao, recall, f1, acuracia, name_clf,labels):
     df = pd.DataFrame(
@@ -62,7 +73,25 @@ def trainTeste(X,y,classifier, n, name_clf, labels):
     
     saveMetrics(precisao,recall,f1,accuracia,name_clf,labels)
     
-   
+def trainTesteMultiple(X,y,classifier, n, name_clf, labels, target):
+    from sklearn.model_selection import train_test_split
+    from sklearn.metrics import precision_recall_fscore_support, accuracy_score
+    precisao = []
+    recall = []
+    f1 = []
+    accuracia = []
+    for i in range(0,n):
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25)
+        X_train,X_test = bagOfWords(X_train,X_test)
+        classifier.fit(X_train, y_train) 
+        y_pred = classifier.predict(X_test)
+        result = precision_recall_fscore_support(y_test, y_pred,labels=labels)
+        precisao.append(result[0].tolist())
+        recall.append(result[1].tolist())
+        f1.append(result[2].tolist())
+        accuracia.append(accuracy_score(y_test, y_pred))
+    
+    return createDataFrameMetrics(precisao,recall,f1,accuracia,name_clf,labels, target)
 
 def stratifiedShuffleSplitSplits(X,y,classifier, splits,name_clf, labels):
     from sklearn.model_selection import StratifiedShuffleSplit
@@ -85,6 +114,28 @@ def stratifiedShuffleSplitSplits(X,y,classifier, splits,name_clf, labels):
         accuracia.append(accuracy_score(y_test, y_pred))
     
     saveMetrics(precisao,recall,f1,accuracia,name_clf,labels)
+
+def stratifiedShuffleSplitSplitsMultiplus(X,y,classifier, splits,name_clf, labels, target):
+    from sklearn.model_selection import StratifiedShuffleSplit
+    from sklearn.metrics import precision_recall_fscore_support, accuracy_score
+    precisao = []
+    recall = []
+    f1 = []
+    accuracia = []
+    sss = StratifiedShuffleSplit(n_splits=splits)
+    for train_index, test_index in sss.split(X, y):
+        X_train, X_test = X[train_index], X[test_index]
+        y_train, y_test = y[train_index], y[test_index]
+        X_train,X_test = bagOfWords(X_train,X_test)
+        classifier.fit(X_train, y_train) 
+        y_pred = classifier.predict(X_test)
+        result = precision_recall_fscore_support(y_test, y_pred,labels=labels)
+        precisao.append(result[0].tolist())
+        recall.append(result[1].tolist())
+        f1.append(result[2].tolist())
+        accuracia.append(accuracy_score(y_test, y_pred))
+    
+    return createDataFrameMetrics(precisao,recall,f1,accuracia,name_clf,labels, target)
 
 
 def single_round(classifier,X,y):
